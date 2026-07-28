@@ -1,20 +1,33 @@
-# Radar de Editais FUNPEC
+# Radar de Editais e Licitações FUNPEC
 
-Ferramenta para buscar automaticamente editais de subvenção econômica, chamadas
-públicas e editais de fomento publicados no Diário Oficial da União — sem
-precisar saber programar ou usar o Google Colab.
+Ferramenta para buscar automaticamente:
+1. **Editais de fomento** — subvenção econômica, chamadas públicas e editais
+   de fomento publicados no Diário Oficial da União (DOU).
+2. **Licitações** — compras e contratações publicadas no Portal Nacional de
+   Contratações Públicas (PNCP), para quando a FUNPEC/NTCPP quer prestar
+   serviços técnicos a outros órgãos.
+
+Sem precisar saber programar ou usar o Google Colab.
 
 Tem duas partes, que usam o mesmo motor de busca por trás:
 
 1. **Plataforma web** (`app.py`) — qualquer pessoa da FUNPEC abre um link no
-   navegador, escolhe os parâmetros (ou usa os padrões) e clica em **Buscar**.
-   Vê os resultados na tela, baixa em Excel ou manda por e-mail na hora.
+   navegador, escolhe os parâmetros na aba desejada (Editais ou Licitações,
+   ou usa os padrões) e clica em **Buscar**. Vê os resultados na tela, baixa
+   em Excel ou manda por e-mail na hora.
 2. **Robô diário** (`email_digest.py` + GitHub Actions) — roda sozinho todo
-   dia útil de manhã e manda um e-mail com o resumo, sem ninguém precisar
-   abrir nada.
+   dia útil de manhã e manda um e-mail com o resumo das duas fontes juntas,
+   sem ninguém precisar abrir nada.
 
 Custo: **R$ 0,00**. Tudo roda em serviços gratuitos (GitHub + Streamlit
 Community Cloud), sem precisar de servidor próprio.
+
+> ⚠️ **Sobre a aba de Licitações (PNCP):** diferente da busca no DOU (que já
+> foi testada em uso real), a integração com o PNCP foi construída a partir
+> da documentação oficial da API e de exemplos públicos, mas **ainda não foi
+> validada contra a API real**. Rode um teste manual assim que publicar — se
+> algum campo vier vazio ou com nome diferente do esperado, é só me mostrar
+> o resultado (ou o erro) que eu ajusto o código em `pncp_radar.py`.
 
 ---
 
@@ -81,9 +94,13 @@ também funciona com uma conta institucional já existente.
 
 Pronto — o arquivo `.github/workflows/daily_digest.yml` já está configurado
 para rodar automaticamente **todo dia útil às 8h (horário de Brasília)** e
-mandar o e-mail. Para testar sem esperar o horário, vá na aba **Actions** do
-repositório, escolha o workflow "Radar de Editais FUNPEC" e clique em
-**Run workflow**.
+mandar o e-mail com os resultados do DOU e do PNCP juntos. Para testar sem
+esperar o horário, vá na aba **Actions** do repositório, escolha o workflow
+"Radar de Editais FUNPEC" e clique em **Run workflow**.
+
+Se quiser que o e-mail diário traga só os editais de fomento (sem
+licitações) enquanto a integração com o PNCP está sendo validada, crie mais
+um secret: `DIGEST_INCLUIR_PNCP` com o valor `false`.
 
 ---
 
@@ -94,11 +111,41 @@ repositório, escolha o workflow "Radar de Editais FUNPEC" e clique em
 - **Quer só acompanhar o que aparece?** Não precisa fazer nada — o e-mail
   automático chega todo dia útil de manhã.
 
-## Ajustando instituições e termos monitorados por padrão
+### Como adicionar uma palavra-chave própria (sem editar código)
 
-Edite a lista em `dou_radar.py` (`INSTITUICOES_PADRAO` e `TERMOS_PADRAO`) —
-essa mudança vale tanto para a plataforma web quanto para o e-mail
-automático, porque os dois usam o mesmo arquivo.
+Nos campos "Órgãos e instituições a monitorar" e "Termos que caracterizam um
+edital" (e o equivalente na aba de Licitações), é possível digitar algo que
+não está na lista pronta:
+
+1. Clique dentro da caixa.
+2. Digite a palavra ou expressão que você quer adicionar (ex: `hidrogênio verde`).
+3. Aperte **Enter** — ela aparece como uma nova "pílula" selecionada, junto
+   com as que já estavam lá.
+
+Isso vale só para aquela busca (não fica salvo depois que a página for
+recarregada). Se quiser que um termo apareça sempre, por padrão, para todo
+mundo, é a mudança permanente descrita na seção seguinte.
+
+## Ajustando instituições, modalidades e termos monitorados por padrão
+
+- **Editais de fomento (DOU):** edite `INSTITUICOES_PADRAO` e `TERMOS_PADRAO`
+  em `dou_radar.py`.
+- **Licitações (PNCP):** edite `MODALIDADES_PADRAO` e `TERMOS_PADRAO` em
+  `pncp_radar.py`. Os termos são comparados com o texto do objeto da
+  contratação (ex: "cimentação de poços", "ensaios laboratoriais").
+
+Essas mudanças valem tanto para a plataforma web quanto para o e-mail
+automático, porque os dois usam os mesmos arquivos.
+
+## Testando a aba de Licitações (PNCP) pela primeira vez
+
+1. Abra a plataforma web e vá na aba **📄 Licitações (PNCP)**.
+2. Reduza "Dias corridos para trás" para 1 ou 2, para o teste ser rápido.
+3. Clique em **Buscar Licitações**.
+4. Se aparecer um erro ou os resultados vierem sempre vazios mesmo com
+   critérios amplos, me mande o print — é bem provável que seja só um ajuste
+   pequeno de nome de campo no `pncp_radar.py`, já que essa integração ainda
+   não tinha sido validada contra a API real quando foi construída.
 
 ## Limitações a ter em mente
 
