@@ -36,19 +36,22 @@ URL_BASE = "https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao"
 
 # Código -> nome da modalidade de contratação (tabela de domínio do PNCP)
 MODALIDADES = {
-    1: "Concorrência",
-    2: "Concorrência Eletrônica",
-    4: "Concurso",
-    5: "Leilão",
+    1: "Leilão Eletrônico",
+    2: "Diálogo Competitivo",
+    3: "Concurso",
+    4: "Concorrência Eletrônica",
+    5: "Concorrência Presencial",
     6: "Pregão Eletrônico",
     7: "Pregão Presencial",
-    8: "Dispensa",
+    8: "Dispensa de Licitação",
     9: "Inexigibilidade",
+    10: "Manifestação de Interesse",
+    11: "Pré-qualificação",
     12: "Credenciamento",
+    13: "Leilão Presencial",
 }
 
-MODALIDADES_PADRAO = [6, 8, 1, 12]  # Pregão Eletrônico, Dispensa, Concorrência, Credenciamento
-
+MODALIDADES_PADRAO = [6, 8, 4, 5, 12]  # Pregão Eletrônico, Dispensa, Concorrência (Eletrônica/Presencial), Credenciamento
 TERMOS_PADRAO = [
     "cimentação de poços",
     "ensaios laboratoriais",
